@@ -18,10 +18,13 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("SELECT DISTINCT s FROM Student s " +
            "LEFT JOIN s.groups g " +
+           "LEFT JOIN g.subject subj " +
            "WHERE (:status IS NULL OR s.status = :status) " +
+           "AND (:subjectId IS NULL OR subj.id = :subjectId) " +
            "AND (:groupId IS NULL OR g.id = :groupId) " +
            "AND (:search = '' OR LOWER(s.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Student> findByFilters(@Param("status") StudentStatus status,
+                                @Param("subjectId") Long subjectId,
                                 @Param("groupId") Long groupId,
                                 @Param("search") String search,
                                 Pageable pageable);

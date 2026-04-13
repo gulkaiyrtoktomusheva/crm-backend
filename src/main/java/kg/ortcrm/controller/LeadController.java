@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,7 @@ public class LeadController {
     private final LeadService leadService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Get all leads", description = "Get paginated list of leads with optional filters")
     public ResponseEntity<Page<LeadResponse>> getAll(
             @RequestParam(required = false) LeadStatus status,
@@ -35,30 +37,35 @@ public class LeadController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Get lead by ID")
     public ResponseEntity<LeadResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(leadService.findById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Create new lead")
     public ResponseEntity<LeadResponse> create(@Valid @RequestBody LeadRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(leadService.create(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Update lead")
     public ResponseEntity<LeadResponse> update(@PathVariable Long id, @Valid @RequestBody LeadRequest request) {
         return ResponseEntity.ok(leadService.update(id, request));
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Update lead status")
     public ResponseEntity<LeadResponse> updateStatus(@PathVariable Long id, @RequestParam LeadStatus status) {
         return ResponseEntity.ok(leadService.updateStatus(id, status));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete lead")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         leadService.delete(id);
@@ -66,6 +73,7 @@ public class LeadController {
     }
 
     @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Get lead statistics", description = "Get count of leads by status for sales funnel")
     public ResponseEntity<LeadStatsResponse> getStats() {
         return ResponseEntity.ok(leadService.getStats());

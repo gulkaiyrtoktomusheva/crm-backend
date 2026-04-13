@@ -3,6 +3,7 @@ package kg.ortcrm.mapper;
 import kg.ortcrm.dto.student.StudentRequest;
 import kg.ortcrm.dto.student.StudentResponse;
 import kg.ortcrm.dto.subject.SubjectResponse;
+import kg.ortcrm.entity.Group;
 import kg.ortcrm.entity.Student;
 import kg.ortcrm.entity.Subject;
 import org.mapstruct.*;
@@ -19,6 +20,7 @@ public interface StudentMapper {
     @Mapping(target = "createdAt", ignore = true)
     Student toEntity(StudentRequest request);
 
+    @Mapping(target = "groupIds", source = "groups", qualifiedByName = "groupsToIds")
     StudentResponse toResponse(Student student);
 
     List<StudentResponse> toResponseList(List<Student> students);
@@ -38,7 +40,17 @@ public interface StudentMapper {
                 .map(s -> SubjectResponse.builder()
                         .id(s.getId())
                         .name(s.getName())
-                        .build())
+                .build())
+                .collect(Collectors.toSet());
+    }
+
+    @Named("groupsToIds")
+    default Set<Long> groupsToIds(Set<Group> groups) {
+        if (groups == null) {
+            return null;
+        }
+        return groups.stream()
+                .map(Group::getId)
                 .collect(Collectors.toSet());
     }
 }

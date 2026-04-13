@@ -22,8 +22,6 @@ public class GroupDetailResponse {
     private String subjectName;
     private Long teacherId;
     private String teacherName;
-    private String schedule;
-    private String zoomLink;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;

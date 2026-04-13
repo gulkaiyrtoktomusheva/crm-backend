@@ -32,4 +32,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.student.id = :studentId AND a.group.id = :groupId")
     long countTotalByStudentIdAndGroupId(@Param("studentId") Long studentId, @Param("groupId") Long groupId);
+
+    @Query("SELECT AVG(CASE WHEN a.present = true THEN 100.0 ELSE 0.0 END) FROM Attendance a")
+    Double findAverageAttendancePercentage();
 }

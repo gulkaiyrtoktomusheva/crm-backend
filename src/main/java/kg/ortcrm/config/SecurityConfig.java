@@ -3,7 +3,6 @@ package kg.ortcrm.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,7 +33,6 @@ public class SecurityConfig {
 
                         // Admin only endpoints
                         .requestMatchers("/api/auth/register").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

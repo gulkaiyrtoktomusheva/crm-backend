@@ -49,6 +49,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponse create(PaymentRequest request) {
+        validatePaymentRequest(request);
         Payment payment = paymentMapper.toEntity(request);
 
         Student student = studentRepository.findById(request.getStudentId())
@@ -65,6 +66,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponse update(Long id, PaymentRequest request) {
+        validatePaymentRequest(request);
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found with id: " + id));
 
@@ -90,6 +92,9 @@ public class PaymentService {
         if (status == PaymentStatus.PAID && payment.getPaidDate() == null) {
             payment.setPaidDate(LocalDate.now());
         }
+        if (status != PaymentStatus.PAID) {
+            payment.setPaidDate(null);
+        }
 
         Payment updatedPayment = paymentRepository.save(payment);
         return paymentMapper.toResponse(updatedPayment);
@@ -106,5 +111,24 @@ public class PaymentService {
     public List<PaymentResponse> findOverduePayments() {
         List<Payment> payments = paymentRepository.findByStatusAndDueDateBefore(PaymentStatus.PENDING, LocalDate.now());
         return paymentMapper.toResponseList(payments);
+    }
+
+    private void validatePaymentRequest(PaymentRequest request) {
+        if (request.getAmount() != null
+                && request.getTotalDue() != null
+                && request.getAmount().compareTo(request.getTotalDue()) > 0) {
+            throw new IllegalArgumentException("Payment amount cannot exceed total due");
+        }
+
+        if (request.getStatus() == PaymentStatus.PAID && request.getPaidDate() == null) {
+            throw new IllegalArgumentException("Paid date is required when payment status is PAID");
+        }
+
+        if (request.getStatus() == PaymentStatus.OVERDUE
+                && request.getPaidDate() != null
+                && request.getDueDate() != null
+                && !request.getPaidDate().isAfter(request.getDueDate())) {
+            throw new IllegalArgumentException("Overdue payment must have paid date after due date or no paid date");
+        }
     }
 }

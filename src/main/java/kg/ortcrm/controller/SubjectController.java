@@ -9,6 +9,7 @@ import kg.ortcrm.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,24 +23,28 @@ public class SubjectController {
     private final SubjectService subjectService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
     @Operation(summary = "Get all subjects")
     public ResponseEntity<List<SubjectResponse>> getAll() {
         return ResponseEntity.ok(subjectService.findAll());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
     @Operation(summary = "Get subject by ID")
     public ResponseEntity<SubjectResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(subjectService.findById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @Operation(summary = "Create new subject")
     public ResponseEntity<SubjectResponse> create(@Valid @RequestBody SubjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.create(request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete subject")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         subjectService.delete(id);

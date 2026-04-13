@@ -41,9 +41,9 @@ public class StudentService {
     private final PaymentMapper paymentMapper;
     private final GroupRepository groupRepository;
 
-    public Page<StudentResponse> findAll(StudentStatus status, Long groupId, Long id, String search, Pageable pageable) {
-        String s  = (search == null) ? "" : search.trim();
-        Page<Student> students = studentRepository.findByFilters(status, groupId, s, pageable);
+    public Page<StudentResponse> findAll(StudentStatus status, Long subjectId, Long groupId, String search, Pageable pageable) {
+        String normalizedSearch = (search == null) ? "" : search.trim();
+        Page<Student> students = studentRepository.findByFilters(status, subjectId, groupId, normalizedSearch, pageable);
         return students.map(studentMapper::toResponse);
     }
 
@@ -122,24 +122,7 @@ public class StudentService {
         }
 
         Student savedStudent = studentRepository.save(student);
-
-        if (request.getGroupIds() != null && !request.getGroupIds().isEmpty()) {
-            Set<Group> groups = new HashSet<>(groupRepository.findAllById(request.getGroupIds()));
-
-            if (groups.size() != request.getGroupIds().size()) {
-                throw new RuntimeException("Some groups not found");
-            }
-
-            savedStudent.getGroups().clear();
-            savedStudent.getGroups().addAll(groups);
-
-            for (Group g : groups) {
-                g.getStudents().add(savedStudent);
-            }
-
-            savedStudent = studentRepository.save(savedStudent);
-        }
-
+        updateStudentGroups(savedStudent, request.getGroupIds());
         return studentMapper.toResponse(savedStudent);
     }
 
@@ -149,7 +132,7 @@ public class StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         studentMapper.updateEntity(student, request);
-
+        updateStudentGroups(student, request.getGroupIds());
 
         Student updatedStudent = studentRepository.save(student);
         return studentMapper.toResponse(updatedStudent);
@@ -161,5 +144,21 @@ public class StudentService {
             throw new ResourceNotFoundException("Student not found with id: " + id);
         }
         studentRepository.deleteById(id);
+    }
+
+    private void updateStudentGroups(Student student, Set<Long> groupIds) {
+        if (groupIds == null) {
+            return;
+        }
+
+        Set<Group> groups = new HashSet<>(groupRepository.findAllById(groupIds));
+        if (groups.size() != groupIds.size()) {
+            throw new IllegalArgumentException("One or more groups were not found");
+        }
+
+        student.getGroups().forEach(group -> group.getStudents().remove(student));
+        student.getGroups().clear();
+        student.getGroups().addAll(groups);
+        groups.forEach(group -> group.getStudents().add(student));
     }
 }

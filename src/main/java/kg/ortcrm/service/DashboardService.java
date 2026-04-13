@@ -47,6 +47,8 @@ public class DashboardService {
         long overduePayments = paymentRepository.countByStatus(PaymentStatus.OVERDUE);
 
         // Mock exam stats
+        Double averageAttendance = attendanceRepository.findAverageAttendancePercentage();
+        Double averageMockScore = mockExamScoreRepository.findAverageScore();
         long totalMockExams = mockExamRepository.count();
 
         return DashboardStatsResponse.builder()
@@ -60,6 +62,8 @@ public class DashboardService {
                 .totalRevenue(totalRevenue)
                 .pendingPayments(pendingPayments)
                 .overduePayments(overduePayments)
+                .averageAttendance(averageAttendance)
+                .averageMockScore(averageMockScore)
                 .totalMockExams(totalMockExams)
                 .build();
     }

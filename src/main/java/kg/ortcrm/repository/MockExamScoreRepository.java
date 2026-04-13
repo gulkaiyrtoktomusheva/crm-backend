@@ -25,4 +25,7 @@ public interface MockExamScoreRepository extends JpaRepository<MockExamScore, Lo
 
     @Query("SELECT AVG(m.score) FROM MockExamScore m WHERE m.student.id = :studentId AND m.subject.id = :subjectId")
     Double findAverageScoreByStudentIdAndSubjectId(@Param("studentId") Long studentId, @Param("subjectId") Long subjectId);
+
+    @Query("SELECT AVG(m.score) FROM MockExamScore m")
+    Double findAverageScore();
 }
