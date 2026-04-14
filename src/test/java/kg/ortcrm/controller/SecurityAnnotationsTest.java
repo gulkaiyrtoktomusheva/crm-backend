@@ -11,29 +11,29 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class SecurityAnnotationsTest {
 
     @Test
-    void reportExportShouldBeRestrictedToAdminAndManager() throws Exception {
-        Method method = ReportController.class.getMethod("exportStudents", String.class, kg.ortcrm.entity.enums.StudentStatus.class, Long.class, Long.class, String.class);
+    void authRegisterShouldRequireUserCreatePermission() throws Exception {
+        Method method = AuthController.class.getMethod("register", kg.ortcrm.dto.auth.RegisterRequest.class);
         PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
 
         assertNotNull(annotation);
-        assertEquals("hasAnyRole('ADMIN','MANAGER')", annotation.value());
+        assertEquals("hasAuthority('USER_CREATE')", annotation.value());
     }
 
     @Test
-    void studentCreateShouldBeRestrictedToAdminAndManager() throws Exception {
+    void studentCreateShouldRequireStudentCreatePermission() throws Exception {
         Method method = StudentController.class.getMethod("create", kg.ortcrm.dto.student.StudentRequest.class);
         PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
 
         assertNotNull(annotation);
-        assertEquals("hasAnyRole('ADMIN','MANAGER')", annotation.value());
+        assertEquals("hasAuthority('STUDENT_CREATE')", annotation.value());
     }
 
     @Test
-    void groupDeleteShouldBeRestrictedToAdmin() throws Exception {
+    void groupDeleteShouldRequireGroupDeletePermission() throws Exception {
         Method method = GroupController.class.getMethod("delete", Long.class);
         PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
 
         assertNotNull(annotation);
-        assertEquals("hasRole('ADMIN')", annotation.value());
+        assertEquals("hasAuthority('GROUP_DELETE')", annotation.value());
     }
 }

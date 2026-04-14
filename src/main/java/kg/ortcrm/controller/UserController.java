@@ -2,7 +2,6 @@ package kg.ortcrm.controller;
 
 import kg.ortcrm.dto.user.UserShortResponse;
 import kg.ortcrm.entity.User;
-import kg.ortcrm.entity.enums.Role;
 import kg.ortcrm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,14 +19,14 @@ public class UserController {
     private final UserRepository userRepository;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public List<UserShortResponse> getUsers(@RequestParam(required = false) Role role) {
-        List<User> users = (role == null)
+    @PreAuthorize("hasAuthority('USER_VIEW')")
+    public List<UserShortResponse> getUsers(@RequestParam(required = false) String roleName) {
+        List<User> users = (roleName == null || roleName.isBlank())
                 ? userRepository.findAll()
-                : userRepository.findAllByRole(role);
+                : userRepository.findAllByRole_NameIgnoreCase(roleName);
 
         return users.stream()
-                .map(u -> new UserShortResponse(u.getId(), u.getFullName(), u.getEmail(), u.getRole()))
+                .map(u -> new UserShortResponse(u.getId(), u.getFullName(), u.getEmail(), u.getRole().getName()))
                 .toList();
     }
 }

@@ -23,28 +23,28 @@ public class SubjectController {
     private final SubjectService subjectService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('SUBJECT_VIEW')")
     @Operation(summary = "Get all subjects")
     public ResponseEntity<List<SubjectResponse>> getAll() {
         return ResponseEntity.ok(subjectService.findAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('SUBJECT_VIEW')")
     @Operation(summary = "Get subject by ID")
     public ResponseEntity<SubjectResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(subjectService.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('SUBJECT_CREATE')")
     @Operation(summary = "Create new subject")
     public ResponseEntity<SubjectResponse> create(@Valid @RequestBody SubjectRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.create(request));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('SUBJECT_DELETE')")
     @Operation(summary = "Delete subject")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         subjectService.delete(id);

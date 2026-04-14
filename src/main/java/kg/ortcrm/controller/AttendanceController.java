@@ -24,7 +24,7 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @GetMapping("/group/{groupId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('ATTENDANCE_VIEW')")
     @Operation(summary = "Get attendance for group", description = "Get attendance records for a group on a specific date")
     public ResponseEntity<List<AttendanceResponse>> getByGroupAndDate(
             @PathVariable Long groupId,
@@ -33,14 +33,14 @@ public class AttendanceController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('ATTENDANCE_VIEW')")
     @Operation(summary = "Get attendance for student", description = "Get all attendance records for a student")
     public ResponseEntity<List<AttendanceResponse>> getByStudent(@PathVariable Long studentId) {
         return ResponseEntity.ok(attendanceService.findByStudent(studentId));
     }
 
     @PostMapping("/group/{groupId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('ATTENDANCE_MARK')")
     @Operation(summary = "Mark attendance", description = "Bulk mark attendance for a group on a specific date")
     public ResponseEntity<List<AttendanceResponse>> markAttendance(
             @PathVariable Long groupId,

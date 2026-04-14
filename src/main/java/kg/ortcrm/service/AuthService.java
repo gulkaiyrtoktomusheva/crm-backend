@@ -1,6 +1,7 @@
 package kg.ortcrm.service;
 
 import kg.ortcrm.config.JwtService;
+import kg.ortcrm.entity.Role;
 import kg.ortcrm.dto.auth.AuthResponse;
 import kg.ortcrm.dto.auth.LoginRequest;
 import kg.ortcrm.dto.auth.RegisterRequest;
@@ -22,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RoleService roleService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -29,11 +31,13 @@ public class AuthService {
             throw new IllegalArgumentException("Email already exists: " + request.getEmail());
         }
 
+        Role role = roleService.getByName(request.getRoleName());
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
-                .role(request.getRole())
+                .role(role)
                 .phone(request.getPhone())
                 .build();
 
@@ -46,7 +50,8 @@ public class AuthService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
-                .role(user.getRole())
+                .roleName(user.getRole().getName())
+                .permissions(user.getRole().getPermissions())
                 .build();
     }
 
@@ -68,7 +73,8 @@ public class AuthService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
-                .role(user.getRole())
+                .roleName(user.getRole().getName())
+                .permissions(user.getRole().getPermissions())
                 .build();
     }
 }

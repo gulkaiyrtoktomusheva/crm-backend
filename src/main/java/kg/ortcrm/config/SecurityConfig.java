@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
 
                         // Admin only endpoints
-                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/register").hasAuthority("USER_CREATE")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

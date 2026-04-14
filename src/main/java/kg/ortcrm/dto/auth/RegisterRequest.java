@@ -1,9 +1,7 @@
 package kg.ortcrm.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import kg.ortcrm.entity.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +23,8 @@ public class RegisterRequest {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
-    @NotNull(message = "Role is required")
-    private Role role;
+    @NotBlank(message = "Role name is required")
+    private String roleName;
 
     private String phone;
 }

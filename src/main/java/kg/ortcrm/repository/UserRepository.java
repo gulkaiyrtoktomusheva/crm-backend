@@ -1,7 +1,6 @@
 package kg.ortcrm.repository;
 
 import kg.ortcrm.entity.User;
-import kg.ortcrm.entity.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    List<User> findByRole(Role role);
+    List<User> findAllByRole_NameIgnoreCase(String roleName);
 
-    List<User> findAllByRole(Role role);
+    long countByRoleId(Long roleId);
 }

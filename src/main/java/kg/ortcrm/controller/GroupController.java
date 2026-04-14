@@ -24,35 +24,35 @@ public class GroupController {
     private final GroupService groupService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('GROUP_VIEW')")
     @Operation(summary = "Get all groups", description = "Get list of groups with optional subject filter")
     public ResponseEntity<List<GroupResponse>> getAll(@RequestParam(required = false) Long subjectId) {
         return ResponseEntity.ok(groupService.findAll(subjectId));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('GROUP_VIEW')")
     @Operation(summary = "Get group with students", description = "Get group details including list of students")
     public ResponseEntity<GroupDetailResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(groupService.findDetailById(id));
     }
 
     @PostMapping({"", "/new"})
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('GROUP_CREATE')")
     @Operation(summary = "Create new group")
     public ResponseEntity<GroupResponse> create(@Valid @RequestBody GroupRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(groupService.create(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('GROUP_UPDATE')")
     @Operation(summary = "Update group")
     public ResponseEntity<GroupResponse> update(@PathVariable Long id, @Valid @RequestBody GroupRequest request) {
         return ResponseEntity.ok(groupService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('GROUP_DELETE')")
     @Operation(summary = "Delete group")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         groupService.delete(id);
@@ -60,14 +60,14 @@ public class GroupController {
     }
 
     @PostMapping("/{id}/students/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('GROUP_MANAGE_STUDENTS')")
     @Operation(summary = "Add student to group")
     public ResponseEntity<GroupResponse> addStudent(@PathVariable Long id, @PathVariable Long studentId) {
         return ResponseEntity.ok(groupService.addStudent(id, studentId));
     }
 
     @DeleteMapping("/{id}/students/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('GROUP_MANAGE_STUDENTS')")
     @Operation(summary = "Remove student from group")
     public ResponseEntity<GroupResponse> removeStudent(@PathVariable Long id, @PathVariable Long studentId) {
         return ResponseEntity.ok(groupService.removeStudent(id, studentId));

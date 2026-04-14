@@ -27,7 +27,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_VIEW')")
     @Operation(summary = "Get all payments", description = "Get paginated list of payments with optional status filter")
     public ResponseEntity<Page<PaymentResponse>> getAll(
             @RequestParam(required = false) PaymentStatus status,
@@ -36,42 +36,42 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_VIEW')")
     @Operation(summary = "Get payment by ID")
     public ResponseEntity<PaymentResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(paymentService.findById(id));
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_VIEW')")
     @Operation(summary = "Get payments for student")
     public ResponseEntity<List<PaymentResponse>> getByStudent(@PathVariable Long studentId) {
         return ResponseEntity.ok(paymentService.findByStudentId(studentId));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_CREATE')")
     @Operation(summary = "Create new payment")
     public ResponseEntity<PaymentResponse> create(@Valid @RequestBody PaymentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.create(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_UPDATE')")
     @Operation(summary = "Update payment")
     public ResponseEntity<PaymentResponse> update(@PathVariable Long id, @Valid @RequestBody PaymentRequest request) {
         return ResponseEntity.ok(paymentService.update(id, request));
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_UPDATE')")
     @Operation(summary = "Update payment status")
     public ResponseEntity<PaymentResponse> updateStatus(@PathVariable Long id, @RequestParam PaymentStatus status) {
         return ResponseEntity.ok(paymentService.updateStatus(id, status));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('PAYMENT_DELETE')")
     @Operation(summary = "Delete payment")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         paymentService.delete(id);
@@ -79,7 +79,7 @@ public class PaymentController {
     }
 
     @GetMapping("/overdue")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAuthority('PAYMENT_VIEW')")
     @Operation(summary = "Get overdue payments")
     public ResponseEntity<List<PaymentResponse>> getOverdue() {
         return ResponseEntity.ok(paymentService.findOverduePayments());

@@ -5,8 +5,8 @@ import kg.ortcrm.dto.group.GroupRequest;
 import kg.ortcrm.dto.group.GroupResponse;
 import kg.ortcrm.dto.student.StudentResponse;
 import kg.ortcrm.entity.Group;
+import kg.ortcrm.entity.Role;
 import kg.ortcrm.entity.Student;
-import kg.ortcrm.entity.enums.Role;
 import kg.ortcrm.entity.Subject;
 import kg.ortcrm.entity.User;
 import kg.ortcrm.exception.ResourceNotFoundException;
@@ -166,7 +166,8 @@ public class GroupService {
     private User loadTeacher(Long teacherId) {
         User teacher = userRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + teacherId));
-        if (teacher.getRole() != Role.TEACHER) {
+        Role role = teacher.getRole();
+        if (role == null || !"TEACHER".equalsIgnoreCase(role.getName())) {
             throw new IllegalArgumentException("Assigned user must have TEACHER role");
         }
         return teacher;

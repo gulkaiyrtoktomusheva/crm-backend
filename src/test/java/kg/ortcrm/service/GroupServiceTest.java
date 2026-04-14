@@ -2,9 +2,9 @@ package kg.ortcrm.service;
 
 import kg.ortcrm.dto.group.GroupRequest;
 import kg.ortcrm.entity.Group;
+import kg.ortcrm.entity.Role;
 import kg.ortcrm.entity.Subject;
 import kg.ortcrm.entity.User;
-import kg.ortcrm.entity.enums.Role;
 import kg.ortcrm.mapper.GroupMapper;
 import kg.ortcrm.mapper.StudentMapper;
 import kg.ortcrm.repository.GroupRepository;
@@ -56,7 +56,10 @@ class GroupServiceTest {
 
         when(groupMapper.toEntity(request)).thenReturn(Group.builder().name("A1").build());
         when(subjectRepository.findById(1L)).thenReturn(java.util.Optional.of(Subject.builder().id(1L).name("math").build()));
-        when(userRepository.findById(2L)).thenReturn(java.util.Optional.of(User.builder().id(2L).role(Role.MANAGER).build()));
+        when(userRepository.findById(2L)).thenReturn(java.util.Optional.of(User.builder()
+                .id(2L)
+                .role(Role.builder().id(10L).name("MANAGER").build())
+                .build()));
 
         assertThrows(IllegalArgumentException.class, () -> groupService.create(request));
     }

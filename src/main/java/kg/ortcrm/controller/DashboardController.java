@@ -20,7 +20,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','TEACHER')")
+    @PreAuthorize("hasAuthority('DASHBOARD_VIEW')")
     @Operation(summary = "Get dashboard statistics", description = "Get summary statistics for the dashboard")
     public ResponseEntity<DashboardStatsResponse> getStats() {
         return ResponseEntity.ok(dashboardService.getStats());
