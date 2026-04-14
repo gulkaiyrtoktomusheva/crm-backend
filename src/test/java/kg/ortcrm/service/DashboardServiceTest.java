@@ -2,14 +2,16 @@ package kg.ortcrm.service;
 
 import kg.ortcrm.dto.dashboard.DashboardStatsResponse;
 import kg.ortcrm.dto.lead.LeadStatsResponse;
-import kg.ortcrm.entity.enums.PaymentStatus;
 import kg.ortcrm.entity.enums.StudentStatus;
 import kg.ortcrm.repository.AttendanceRepository;
 import kg.ortcrm.repository.GroupRepository;
 import kg.ortcrm.repository.LeadRepository;
+import kg.ortcrm.repository.LessonAttendanceRepository;
 import kg.ortcrm.repository.MockExamRepository;
 import kg.ortcrm.repository.MockExamScoreRepository;
 import kg.ortcrm.repository.PaymentRepository;
+import kg.ortcrm.repository.PaymentScheduleRepository;
+import kg.ortcrm.repository.PaymentTransactionRepository;
 import kg.ortcrm.repository.StudentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -30,8 +33,11 @@ class DashboardServiceTest {
     @Mock private GroupRepository groupRepository;
     @Mock private PaymentRepository paymentRepository;
     @Mock private AttendanceRepository attendanceRepository;
+    @Mock private LessonAttendanceRepository lessonAttendanceRepository;
     @Mock private MockExamRepository mockExamRepository;
     @Mock private MockExamScoreRepository mockExamScoreRepository;
+    @Mock private PaymentTransactionRepository paymentTransactionRepository;
+    @Mock private PaymentScheduleRepository paymentScheduleRepository;
     @Mock private LeadService leadService;
 
     @InjectMocks private DashboardService dashboardService;
@@ -45,10 +51,10 @@ class DashboardServiceTest {
         when(studentRepository.countByStatus(StudentStatus.COMPLETED)).thenReturn(1L);
         when(leadService.getStats()).thenReturn(new LeadStatsResponse());
         when(groupRepository.count()).thenReturn(5L);
-        when(paymentRepository.sumAllPaidAmount()).thenReturn(new BigDecimal("120000"));
-        when(paymentRepository.countByStatus(PaymentStatus.PENDING)).thenReturn(3L);
-        when(paymentRepository.countByStatus(PaymentStatus.OVERDUE)).thenReturn(1L);
-        when(attendanceRepository.findAverageAttendancePercentage()).thenReturn(87.5);
+        when(paymentTransactionRepository.sumAllPaidAmount()).thenReturn(new BigDecimal("120000"));
+        when(paymentScheduleRepository.countPending(LocalDate.now())).thenReturn(3L);
+        when(paymentScheduleRepository.countOverdue(LocalDate.now())).thenReturn(1L);
+        when(lessonAttendanceRepository.findAverageAttendancePercentage()).thenReturn(87.5);
         when(mockExamScoreRepository.findAverageScore()).thenReturn(164.25);
         when(mockExamRepository.count()).thenReturn(4L);
 

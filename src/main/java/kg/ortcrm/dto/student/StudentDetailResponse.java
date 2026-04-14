@@ -1,6 +1,7 @@
 package kg.ortcrm.dto.student;
 
 import kg.ortcrm.dto.group.GroupResponse;
+import kg.ortcrm.dto.finance.StudentFinanceResponse;
 import kg.ortcrm.dto.mockexam.MockExamScoreResponse;
 import kg.ortcrm.dto.payment.PaymentResponse;
 import kg.ortcrm.entity.enums.LeadSource;
@@ -54,4 +55,5 @@ public class StudentDetailResponse {
     private BigDecimal totalPaid;
     private BigDecimal totalDue;
     private BigDecimal balance;
+    private StudentFinanceResponse finance;
 }

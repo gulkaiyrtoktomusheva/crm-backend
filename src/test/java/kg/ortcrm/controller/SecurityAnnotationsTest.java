@@ -36,4 +36,31 @@ class SecurityAnnotationsTest {
         assertNotNull(annotation);
         assertEquals("hasAuthority('GROUP_DELETE')", annotation.value());
     }
+
+    @Test
+    void userCreateShouldRequireUserCreatePermission() throws Exception {
+        Method method = UserController.class.getMethod("create", kg.ortcrm.dto.user.UserRequest.class);
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        assertNotNull(annotation);
+        assertEquals("hasAuthority('USER_CREATE')", annotation.value());
+    }
+
+    @Test
+    void userUpdateShouldRequireUserUpdatePermission() throws Exception {
+        Method method = UserController.class.getMethod("update", Long.class, kg.ortcrm.dto.user.UserUpdateRequest.class);
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        assertNotNull(annotation);
+        assertEquals("hasAuthority('USER_UPDATE')", annotation.value());
+    }
+
+    @Test
+    void userDeleteShouldRequireUserDeletePermission() throws Exception {
+        Method method = UserController.class.getMethod("delete", Long.class);
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        assertNotNull(annotation);
+        assertEquals("hasAuthority('USER_DELETE')", annotation.value());
+    }
 }

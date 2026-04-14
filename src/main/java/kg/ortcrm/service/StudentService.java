@@ -3,10 +3,10 @@ package kg.ortcrm.service;
 import kg.ortcrm.dto.group.GroupResponse;
 import kg.ortcrm.dto.mockexam.MockExamScoreResponse;
 import kg.ortcrm.dto.payment.PaymentResponse;
+import kg.ortcrm.dto.finance.StudentFinanceResponse;
 import kg.ortcrm.dto.student.StudentDetailResponse;
 import kg.ortcrm.dto.student.StudentRequest;
 import kg.ortcrm.dto.student.StudentResponse;
-import kg.ortcrm.entity.Group;
 import kg.ortcrm.entity.Student;
 import kg.ortcrm.entity.enums.StudentStatus;
 import kg.ortcrm.exception.ResourceNotFoundException;
@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,13 +31,14 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final AttendanceRepository attendanceRepository;
+    private final LessonAttendanceRepository lessonAttendanceRepository;
     private final MockExamScoreRepository mockExamScoreRepository;
     private final PaymentRepository paymentRepository;
     private final StudentMapper studentMapper;
     private final GroupMapper groupMapper;
     private final MockExamMapper mockExamMapper;
     private final PaymentMapper paymentMapper;
-    private final GroupRepository groupRepository;
+    private final StudentFinanceService studentFinanceService;
 
     public Page<StudentResponse> findAll(StudentStatus status, Long subjectId, Long groupId, String search, Pageable pageable) {
         String normalizedSearch = (search == null) ? "" : search.trim();
@@ -65,8 +64,10 @@ public class StudentService {
                 .collect(Collectors.toList());
 
         // Attendance stats
-        long totalLessons = attendanceRepository.countTotalByStudentId(id);
-        long attendedLessons = attendanceRepository.countPresentByStudentId(id);
+        long totalLessons = attendanceRepository.countTotalByStudentId(id)
+                + lessonAttendanceRepository.countTotalByStudentId(id);
+        long attendedLessons = attendanceRepository.countPresentByStudentId(id)
+                + lessonAttendanceRepository.countPresentByStudentId(id);
         Double attendancePercentage = totalLessons > 0 ? (double) attendedLessons / totalLessons * 100 : null;
 
         // Mock exam scores
@@ -84,6 +85,7 @@ public class StudentService {
         if (totalDue == null) totalDue = BigDecimal.ZERO;
 
         BigDecimal balance = totalDue.subtract(totalPaid);
+        StudentFinanceResponse finance = studentFinanceService.getFinance(id);
 
         return StudentDetailResponse.builder()
                 .id(student.getId())
@@ -110,6 +112,7 @@ public class StudentService {
                 .totalPaid(totalPaid)
                 .totalDue(totalDue)
                 .balance(balance)
+                .finance(finance)
                 .build();
     }
 
@@ -122,7 +125,6 @@ public class StudentService {
         }
 
         Student savedStudent = studentRepository.save(student);
-        updateStudentGroups(savedStudent, request.getGroupIds());
         return studentMapper.toResponse(savedStudent);
     }
 
@@ -132,7 +134,6 @@ public class StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         studentMapper.updateEntity(student, request);
-        updateStudentGroups(student, request.getGroupIds());
 
         Student updatedStudent = studentRepository.save(student);
         return studentMapper.toResponse(updatedStudent);
@@ -146,19 +147,4 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
-    private void updateStudentGroups(Student student, Set<Long> groupIds) {
-        if (groupIds == null) {
-            return;
-        }
-
-        Set<Group> groups = new HashSet<>(groupRepository.findAllById(groupIds));
-        if (groups.size() != groupIds.size()) {
-            throw new IllegalArgumentException("One or more groups were not found");
-        }
-
-        student.getGroups().forEach(group -> group.getStudents().remove(student));
-        student.getGroups().clear();
-        student.getGroups().addAll(groups);
-        groups.forEach(group -> group.getStudents().add(student));
-    }
 }

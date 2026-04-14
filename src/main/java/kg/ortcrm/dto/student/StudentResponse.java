@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @Builder
@@ -31,5 +30,4 @@ public class StudentResponse {
     private LeadSource source;
     private String referredBy;
     private LocalDateTime createdAt;
-    private Set<Long> groupIds;
 }

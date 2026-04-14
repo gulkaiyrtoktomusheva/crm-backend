@@ -2,7 +2,6 @@ package kg.ortcrm.service;
 
 import kg.ortcrm.dto.dashboard.DashboardStatsResponse;
 import kg.ortcrm.dto.lead.LeadStatsResponse;
-import kg.ortcrm.entity.enums.PaymentStatus;
 import kg.ortcrm.entity.enums.StudentStatus;
 import kg.ortcrm.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +20,11 @@ public class DashboardService {
     private final GroupRepository groupRepository;
     private final PaymentRepository paymentRepository;
     private final AttendanceRepository attendanceRepository;
+    private final LessonAttendanceRepository lessonAttendanceRepository;
     private final MockExamRepository mockExamRepository;
     private final MockExamScoreRepository mockExamScoreRepository;
+    private final PaymentTransactionRepository paymentTransactionRepository;
+    private final PaymentScheduleRepository paymentScheduleRepository;
     private final LeadService leadService;
 
     @Transactional(readOnly = true)
@@ -40,14 +43,17 @@ public class DashboardService {
         long totalGroups = groupRepository.count();
 
         // Payment stats
-        BigDecimal totalRevenue = paymentRepository.sumAllPaidAmount();
+        BigDecimal totalRevenue = paymentTransactionRepository.sumAllPaidAmount();
         if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
 
-        long pendingPayments = paymentRepository.countByStatus(PaymentStatus.PENDING);
-        long overduePayments = paymentRepository.countByStatus(PaymentStatus.OVERDUE);
+        long pendingPayments = paymentScheduleRepository.countPending(LocalDate.now());
+        long overduePayments = paymentScheduleRepository.countOverdue(LocalDate.now());
 
         // Mock exam stats
-        Double averageAttendance = attendanceRepository.findAverageAttendancePercentage();
+        Double averageAttendance = lessonAttendanceRepository.findAverageAttendancePercentage();
+        if (averageAttendance == null) {
+            averageAttendance = attendanceRepository.findAverageAttendancePercentage();
+        }
         Double averageMockScore = mockExamScoreRepository.findAverageScore();
         long totalMockExams = mockExamRepository.count();
 

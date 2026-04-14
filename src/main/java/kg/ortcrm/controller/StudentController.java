@@ -3,11 +3,13 @@ package kg.ortcrm.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kg.ortcrm.dto.finance.StudentFinanceResponse;
 import kg.ortcrm.dto.student.StudentDetailResponse;
 import kg.ortcrm.dto.student.StudentRequest;
 import kg.ortcrm.dto.student.StudentResponse;
 import kg.ortcrm.entity.enums.StudentStatus;
 import kg.ortcrm.service.StudentService;
+import kg.ortcrm.service.StudentFinanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class StudentController {
 
     private final StudentService studentService;
+    private final StudentFinanceService studentFinanceService;
 
     @GetMapping
     @PreAuthorize("hasAuthority('STUDENT_VIEW')")
@@ -44,7 +47,14 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findDetailById(id));
     }
 
-    @PostMapping
+    @GetMapping("/{id}/finance")
+    @PreAuthorize("hasAuthority('STUDENT_VIEW')")
+    @Operation(summary = "Get student finance view")
+    public ResponseEntity<StudentFinanceResponse> getFinance(@PathVariable Long id) {
+        return ResponseEntity.ok(studentFinanceService.getFinance(id));
+    }
+
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('STUDENT_CREATE')")
     @Operation(summary = "Create new student")
     public ResponseEntity<StudentResponse> create(@Valid @RequestBody StudentRequest request) {
