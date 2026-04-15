@@ -39,6 +39,10 @@ public class StudentCourse {
     @Builder.Default
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
+    @Column(name = "referral_discount_amount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal referralDiscountAmount = BigDecimal.ZERO;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

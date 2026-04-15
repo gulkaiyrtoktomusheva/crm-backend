@@ -111,6 +111,7 @@ public class StudentFinanceService {
                 .courseName(studentCourse.getCourse().getName())
                 .coursePrice(studentCourse.getCoursePrice())
                 .discountAmount(studentCourse.getDiscountAmount())
+                .referralDiscountAmount(studentCourse.getReferralDiscountAmount())
                 .finalPrice(studentCourse.getFinalPrice())
                 .startDate(studentCourse.getCourse().getStartDate())
                 .endDate(studentCourse.getCourse().getEndDate())

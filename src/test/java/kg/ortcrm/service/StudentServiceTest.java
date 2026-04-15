@@ -36,6 +36,7 @@ class StudentServiceTest {
     @Mock private MockExamMapper mockExamMapper;
     @Mock private PaymentMapper paymentMapper;
     @Mock private StudentFinanceService studentFinanceService;
+    @Mock private ReferralService referralService;
 
     @InjectMocks private StudentService studentService;
 

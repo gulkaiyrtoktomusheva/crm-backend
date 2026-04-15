@@ -53,8 +53,9 @@ public class Student {
     @Enumerated(EnumType.STRING)
     private LeadSource source;
 
-    @Column(name = "referred_by")
-    private String referredBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referred_by_student_id")
+    private Student referredByStudent;
 
     @ManyToMany
     @JoinTable(

@@ -39,6 +39,7 @@ public class StudentService {
     private final MockExamMapper mockExamMapper;
     private final PaymentMapper paymentMapper;
     private final StudentFinanceService studentFinanceService;
+    private final ReferralService referralService;
 
     public Page<StudentResponse> findAll(StudentStatus status, Long subjectId, Long groupId, String search, Pageable pageable) {
         String normalizedSearch = (search == null) ? "" : search.trim();
@@ -100,7 +101,9 @@ public class StudentService {
                 .ortDate(student.getOrtDate())
                 .status(student.getStatus())
                 .source(student.getSource())
-                .referredBy(student.getReferredBy())
+                .referredByStudentId(student.getReferredByStudent() != null ? student.getReferredByStudent().getId() : null)
+                .referredByStudentName(student.getReferredByStudent() != null ? student.getReferredByStudent().getFullName() : null)
+                .availableReferralDiscount(referralService.getAvailableDiscountAmount(id))
                 .createdAt(student.getCreatedAt())
                 .groups(groups)
                 .attendancePercentage(attendancePercentage)
@@ -125,6 +128,8 @@ public class StudentService {
         }
 
         Student savedStudent = studentRepository.save(student);
+        referralService.registerReferral(savedStudent, request.getReferredByStudentId());
+        savedStudent = studentRepository.save(savedStudent);
         return studentMapper.toResponse(savedStudent);
     }
 
@@ -134,6 +139,9 @@ public class StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
         studentMapper.updateEntity(student, request);
+        if (request.getReferredByStudentId() != null) {
+            referralService.registerReferral(student, request.getReferredByStudentId());
+        }
 
         Student updatedStudent = studentRepository.save(student);
         return studentMapper.toResponse(updatedStudent);

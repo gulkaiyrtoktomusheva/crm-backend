@@ -28,6 +28,7 @@ public class StudentResponse {
     private LocalDate ortDate;
     private StudentStatus status;
     private LeadSource source;
-    private String referredBy;
+    private Long referredByStudentId;
+    private String referredByStudentName;
     private LocalDateTime createdAt;
 }

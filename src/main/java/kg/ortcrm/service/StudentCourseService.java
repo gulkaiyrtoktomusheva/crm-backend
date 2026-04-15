@@ -31,6 +31,7 @@ public class StudentCourseService {
     private final CourseRepository courseRepository;
     private final PaymentAgreementService paymentAgreementService;
     private final PaymentAgreementRepository paymentAgreementRepository;
+    private final ReferralService referralService;
 
     public List<StudentCourseResponse> findByStudentId(Long studentId) {
         return studentCourseRepository.findByStudentIdOrderByCreatedAtDesc(studentId).stream()
@@ -53,17 +54,29 @@ public class StudentCourseService {
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
         validateDiscountAgainstCourse(course, request);
+        boolean firstEnrollment = studentCourseRepository.countByStudentId(student.getId()) == 0;
+        BigDecimal manualDiscount = defaultDiscount(request.getDiscountAmount());
+        BigDecimal availableReferralDiscount = referralService.getAvailableDiscountAmount(student.getId());
+        BigDecimal referralDiscountToApply = availableReferralDiscount.min(course.getPrice().subtract(manualDiscount).max(BigDecimal.ZERO));
+        BigDecimal totalDiscount = manualDiscount.add(referralDiscountToApply);
 
         StudentCourse studentCourse = StudentCourse.builder()
                 .student(student)
                 .course(course)
                 .coursePrice(course.getPrice())
-                .discountAmount(defaultDiscount(request.getDiscountAmount()))
-                .finalPrice(course.getPrice().subtract(defaultDiscount(request.getDiscountAmount())))
+                .discountAmount(totalDiscount)
+                .referralDiscountAmount(referralDiscountToApply)
+                .finalPrice(course.getPrice().subtract(totalDiscount))
                 .status(request.getStatus() != null ? request.getStatus() : StudentCourseStatus.ACTIVE)
                 .build();
 
         StudentCourse saved = studentCourseRepository.save(studentCourse);
+        if (referralDiscountToApply.compareTo(BigDecimal.ZERO) > 0) {
+            referralService.consumeAvailableDiscount(student.getId(), referralDiscountToApply);
+        }
+        if (firstEnrollment && saved.getStatus() != StudentCourseStatus.CANCELLED) {
+            referralService.activateReferralRewardForReferredStudent(student.getId());
+        }
         if (saved.getStatus() != StudentCourseStatus.CANCELLED) {
             createDefaultPaymentAgreement(saved);
         }
@@ -82,12 +95,13 @@ public class StudentCourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + request.getCourseId()));
         validateDiscountAgainstCourse(course, request);
         ensureFinancialTermsAreMutable(studentCourse, request, course);
+        BigDecimal manualDiscount = defaultDiscount(request.getDiscountAmount());
 
         studentCourse.setStudent(student);
         studentCourse.setCourse(course);
         studentCourse.setCoursePrice(course.getPrice());
-        studentCourse.setDiscountAmount(defaultDiscount(request.getDiscountAmount()));
-        studentCourse.setFinalPrice(course.getPrice().subtract(defaultDiscount(request.getDiscountAmount())));
+        studentCourse.setDiscountAmount(manualDiscount.add(studentCourse.getReferralDiscountAmount()));
+        studentCourse.setFinalPrice(course.getPrice().subtract(manualDiscount.add(studentCourse.getReferralDiscountAmount())));
         studentCourse.setStatus(request.getStatus() != null ? request.getStatus() : studentCourse.getStatus());
 
         StudentCourse saved = studentCourseRepository.save(studentCourse);
@@ -149,7 +163,8 @@ public class StudentCourseService {
 
     private void ensureFinancialTermsAreMutable(StudentCourse studentCourse, StudentCourseRequest request, Course course) {
         boolean financialChange = !studentCourse.getCourse().getId().equals(course.getId())
-                || defaultDiscount(request.getDiscountAmount()).compareTo(studentCourse.getDiscountAmount()) != 0;
+                || defaultDiscount(request.getDiscountAmount())
+                .compareTo(studentCourse.getDiscountAmount().subtract(studentCourse.getReferralDiscountAmount())) != 0;
         if (financialChange && paymentAgreementRepository.existsByStudentCourseIdAndStatusIn(
                 studentCourse.getId(),
                 List.of(PaymentAgreementStatus.ACTIVE, PaymentAgreementStatus.COMPLETED))) {
@@ -166,6 +181,7 @@ public class StudentCourseService {
                 .courseName(studentCourse.getCourse().getName())
                 .coursePrice(studentCourse.getCoursePrice())
                 .discountAmount(studentCourse.getDiscountAmount())
+                .referralDiscountAmount(studentCourse.getReferralDiscountAmount())
                 .finalPrice(studentCourse.getFinalPrice())
                 .startDate(studentCourse.getCourse().getStartDate())
                 .endDate(studentCourse.getCourse().getEndDate())

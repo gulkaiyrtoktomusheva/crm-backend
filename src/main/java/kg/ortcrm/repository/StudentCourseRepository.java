@@ -13,6 +13,8 @@ public interface StudentCourseRepository extends JpaRepository<StudentCourse, Lo
 
     List<StudentCourse> findByStudentIdOrderByCreatedAtDesc(Long studentId);
 
+    long countByStudentId(Long studentId);
+
     boolean existsByStudentIdAndCourseIdAndStatusIn(Long studentId, Long courseId, Collection<StudentCourseStatus> statuses);
 
     long countByStudentIdAndCourseIdAndStatusIn(Long studentId, Long courseId, Collection<StudentCourseStatus> statuses);

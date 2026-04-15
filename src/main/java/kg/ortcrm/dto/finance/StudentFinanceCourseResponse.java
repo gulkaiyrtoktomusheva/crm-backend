@@ -21,6 +21,7 @@ public class StudentFinanceCourseResponse {
     private String courseName;
     private BigDecimal coursePrice;
     private BigDecimal discountAmount;
+    private BigDecimal referralDiscountAmount;
     private BigDecimal finalPrice;
     private LocalDate startDate;
     private LocalDate endDate;

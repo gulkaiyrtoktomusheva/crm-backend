@@ -12,9 +12,12 @@ public interface StudentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "groups", ignore = true)
+    @Mapping(target = "referredByStudent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Student toEntity(StudentRequest request);
 
+    @Mapping(target = "referredByStudentId", source = "referredByStudent.id")
+    @Mapping(target = "referredByStudentName", source = "referredByStudent.fullName")
     StudentResponse toResponse(Student student);
 
     List<StudentResponse> toResponseList(List<Student> students);
@@ -22,6 +25,7 @@ public interface StudentMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "groups", ignore = true)
+    @Mapping(target = "referredByStudent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     void updateEntity(@MappingTarget Student student, StudentRequest request);
 }

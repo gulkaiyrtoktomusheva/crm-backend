@@ -29,5 +29,5 @@ public class StudentRequest {
     private LocalDate ortDate;
     private StudentStatus status;
     private LeadSource source;
-    private String referredBy;
+    private Long referredByStudentId;
 }
