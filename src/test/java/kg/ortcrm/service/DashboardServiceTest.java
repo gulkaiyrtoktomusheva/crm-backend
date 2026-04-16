@@ -3,7 +3,6 @@ package kg.ortcrm.service;
 import kg.ortcrm.dto.dashboard.DashboardStatsResponse;
 import kg.ortcrm.dto.lead.LeadStatsResponse;
 import kg.ortcrm.entity.enums.StudentStatus;
-import kg.ortcrm.repository.AttendanceRepository;
 import kg.ortcrm.repository.GroupRepository;
 import kg.ortcrm.repository.LeadRepository;
 import kg.ortcrm.repository.LessonAttendanceRepository;
@@ -32,7 +31,6 @@ class DashboardServiceTest {
     @Mock private LeadRepository leadRepository;
     @Mock private GroupRepository groupRepository;
     @Mock private PaymentRepository paymentRepository;
-    @Mock private AttendanceRepository attendanceRepository;
     @Mock private LessonAttendanceRepository lessonAttendanceRepository;
     @Mock private MockExamRepository mockExamRepository;
     @Mock private MockExamScoreRepository mockExamScoreRepository;

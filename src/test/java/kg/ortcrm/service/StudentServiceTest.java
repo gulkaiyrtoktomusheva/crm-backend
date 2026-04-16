@@ -3,17 +3,11 @@ package kg.ortcrm.service;
 import kg.ortcrm.dto.student.StudentRequest;
 import kg.ortcrm.dto.student.StudentResponse;
 import kg.ortcrm.entity.Student;
-import kg.ortcrm.dto.finance.StudentFinanceResponse;
 import kg.ortcrm.mapper.GroupMapper;
 import kg.ortcrm.mapper.MockExamMapper;
 import kg.ortcrm.mapper.PaymentMapper;
 import kg.ortcrm.mapper.StudentMapper;
-import kg.ortcrm.repository.AttendanceRepository;
-import kg.ortcrm.repository.GroupRepository;
-import kg.ortcrm.repository.LessonAttendanceRepository;
-import kg.ortcrm.repository.MockExamScoreRepository;
-import kg.ortcrm.repository.PaymentRepository;
-import kg.ortcrm.repository.StudentRepository;
+import kg.ortcrm.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +21,6 @@ import static org.mockito.Mockito.when;
 class StudentServiceTest {
 
     @Mock private StudentRepository studentRepository;
-    @Mock private AttendanceRepository attendanceRepository;
     @Mock private LessonAttendanceRepository lessonAttendanceRepository;
     @Mock private MockExamScoreRepository mockExamScoreRepository;
     @Mock private PaymentRepository paymentRepository;

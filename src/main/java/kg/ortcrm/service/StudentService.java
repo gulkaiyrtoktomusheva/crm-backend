@@ -14,7 +14,10 @@ import kg.ortcrm.mapper.GroupMapper;
 import kg.ortcrm.mapper.MockExamMapper;
 import kg.ortcrm.mapper.PaymentMapper;
 import kg.ortcrm.mapper.StudentMapper;
-import kg.ortcrm.repository.*;
+import kg.ortcrm.repository.LessonAttendanceRepository;
+import kg.ortcrm.repository.MockExamScoreRepository;
+import kg.ortcrm.repository.PaymentRepository;
+import kg.ortcrm.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +33,6 @@ import java.util.stream.Collectors;
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    private final AttendanceRepository attendanceRepository;
     private final LessonAttendanceRepository lessonAttendanceRepository;
     private final MockExamScoreRepository mockExamScoreRepository;
     private final PaymentRepository paymentRepository;
@@ -65,10 +67,8 @@ public class StudentService {
                 .collect(Collectors.toList());
 
         // Attendance stats
-        long totalLessons = attendanceRepository.countTotalByStudentId(id)
-                + lessonAttendanceRepository.countTotalByStudentId(id);
-        long attendedLessons = attendanceRepository.countPresentByStudentId(id)
-                + lessonAttendanceRepository.countPresentByStudentId(id);
+        long totalLessons = lessonAttendanceRepository.countTotalByStudentId(id);
+        long attendedLessons = lessonAttendanceRepository.countPresentByStudentId(id);
         Double attendancePercentage = totalLessons > 0 ? (double) attendedLessons / totalLessons * 100 : null;
 
         // Mock exam scores

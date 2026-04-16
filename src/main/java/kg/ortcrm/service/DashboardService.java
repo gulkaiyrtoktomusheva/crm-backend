@@ -19,7 +19,6 @@ public class DashboardService {
     private final LeadRepository leadRepository;
     private final GroupRepository groupRepository;
     private final PaymentRepository paymentRepository;
-    private final AttendanceRepository attendanceRepository;
     private final LessonAttendanceRepository lessonAttendanceRepository;
     private final MockExamRepository mockExamRepository;
     private final MockExamScoreRepository mockExamScoreRepository;
@@ -51,9 +50,6 @@ public class DashboardService {
 
         // Mock exam stats
         Double averageAttendance = lessonAttendanceRepository.findAverageAttendancePercentage();
-        if (averageAttendance == null) {
-            averageAttendance = attendanceRepository.findAverageAttendancePercentage();
-        }
         Double averageMockScore = mockExamScoreRepository.findAverageScore();
         long totalMockExams = mockExamRepository.count();
 
