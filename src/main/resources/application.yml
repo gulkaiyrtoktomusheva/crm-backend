@@ -18,11 +18,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 jwt:
-  secret: b3J0Y3JtLXN1cGVyLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1nZW5lcmF0aW9uLTI1Ni1iaXRz
-  expiration: 86400000 # 24 hours in milliseconds
+  secret: ${JWT_SECRET:b3J0Y3JtLXN1cGVyLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1nZW5lcmF0aW9uLTI1Ni1iaXRz}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 springdoc:
   api-docs:
@@ -38,5 +38,7 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
 
 app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
   referral:
     discount-amount: 1000
