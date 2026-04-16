@@ -30,6 +30,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +44,40 @@ class PaymentTransactionServiceTest {
     @Spy private PaymentScheduleStatusResolver statusResolver;
 
     @InjectMocks private PaymentTransactionService paymentTransactionService;
+
+    @Test
+    void findAllByPaidAtBetweenShouldRejectInvalidDateRange() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> paymentTransactionService.findAllByPaidAtBetween(
+                        LocalDate.of(2026, 4, 30),
+                        LocalDate.of(2026, 4, 1))
+        );
+    }
+
+    @Test
+    void findAllByPaidAtBetweenShouldUseRepositoryRangeFilter() {
+        LocalDate dateFrom = LocalDate.of(2026, 4, 1);
+        LocalDate dateTo = LocalDate.of(2026, 4, 30);
+        Student student = Student.builder().id(1L).fullName("A").build();
+        PaymentAgreement agreement = PaymentAgreement.builder().id(4L).build();
+        PaymentTransaction transaction = PaymentTransaction.builder()
+                .id(20L)
+                .student(student)
+                .agreement(agreement)
+                .amount(new BigDecimal("3000.00"))
+                .paidAt(LocalDate.of(2026, 4, 5))
+                .build();
+
+        when(paymentTransactionRepository.findByPaidAtBetweenOrderByPaidAtDescIdDesc(dateFrom, dateTo))
+                .thenReturn(List.of(transaction));
+        when(paymentAllocationRepository.findByTransactionIdOrderByIdAsc(20L)).thenReturn(List.of());
+
+        List<?> result = paymentTransactionService.findAllByPaidAtBetween(dateFrom, dateTo);
+
+        assertEquals(1, result.size());
+        verify(paymentTransactionRepository).findByPaidAtBetweenOrderByPaidAtDescIdDesc(dateFrom, dateTo);
+    }
 
     @Test
     void createShouldAllocateAcrossSchedulesAutomatically() {

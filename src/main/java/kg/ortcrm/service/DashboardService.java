@@ -18,7 +18,6 @@ public class DashboardService {
     private final StudentRepository studentRepository;
     private final LeadRepository leadRepository;
     private final GroupRepository groupRepository;
-    private final PaymentRepository paymentRepository;
     private final LessonAttendanceRepository lessonAttendanceRepository;
     private final MockExamRepository mockExamRepository;
     private final MockExamScoreRepository mockExamScoreRepository;

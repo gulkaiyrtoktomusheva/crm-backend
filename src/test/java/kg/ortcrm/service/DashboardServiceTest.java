@@ -8,7 +8,6 @@ import kg.ortcrm.repository.LeadRepository;
 import kg.ortcrm.repository.LessonAttendanceRepository;
 import kg.ortcrm.repository.MockExamRepository;
 import kg.ortcrm.repository.MockExamScoreRepository;
-import kg.ortcrm.repository.PaymentRepository;
 import kg.ortcrm.repository.PaymentScheduleRepository;
 import kg.ortcrm.repository.PaymentTransactionRepository;
 import kg.ortcrm.repository.StudentRepository;
@@ -30,7 +29,6 @@ class DashboardServiceTest {
     @Mock private StudentRepository studentRepository;
     @Mock private LeadRepository leadRepository;
     @Mock private GroupRepository groupRepository;
-    @Mock private PaymentRepository paymentRepository;
     @Mock private LessonAttendanceRepository lessonAttendanceRepository;
     @Mock private MockExamRepository mockExamRepository;
     @Mock private MockExamScoreRepository mockExamScoreRepository;

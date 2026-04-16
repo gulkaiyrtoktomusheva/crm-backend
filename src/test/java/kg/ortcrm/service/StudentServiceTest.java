@@ -5,7 +5,6 @@ import kg.ortcrm.dto.student.StudentResponse;
 import kg.ortcrm.entity.Student;
 import kg.ortcrm.mapper.GroupMapper;
 import kg.ortcrm.mapper.MockExamMapper;
-import kg.ortcrm.mapper.PaymentMapper;
 import kg.ortcrm.mapper.StudentMapper;
 import kg.ortcrm.repository.*;
 import org.junit.jupiter.api.Test;

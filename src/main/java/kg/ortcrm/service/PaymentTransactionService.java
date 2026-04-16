@@ -37,6 +37,16 @@ public class PaymentTransactionService {
     private final PaymentAgreementService paymentAgreementService;
     private final PaymentScheduleStatusResolver statusResolver;
 
+    public List<PaymentTransactionResponse> findAllByPaidAtBetween(LocalDate dateFrom, LocalDate dateTo) {
+        if (dateFrom.isAfter(dateTo)) {
+            throw new IllegalArgumentException("dateFrom must be before or equal to dateTo");
+        }
+
+        return paymentTransactionRepository.findByPaidAtBetweenOrderByPaidAtDescIdDesc(dateFrom, dateTo).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public List<PaymentTransactionResponse> findByStudentId(Long studentId) {
         return paymentTransactionRepository.findByAgreementStudentCourseStudentIdOrderByPaidAtDesc(studentId).stream()
                 .map(this::toResponse)
