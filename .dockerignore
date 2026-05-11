@@ -4,5 +4,6 @@ target/
 .git/
 .gitignore
 *.md
-docker-compose.yml
+*.tar.gz
+deploy/compose/
 

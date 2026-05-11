@@ -1,12 +1,15 @@
-# Production deployment
+# Deployment
 
-## 1. Prepare server
+Infrastructure files are grouped under `deploy/`:
 
-Install Docker and Docker Compose plugin on the server.
+- `deploy/docker/backend.Dockerfile`
+- `deploy/docker/frontend.Dockerfile`
+- `deploy/compose/docker-compose.local.yml`
+- `deploy/compose/docker-compose.prod.yml`
+- `deploy/compose/docker-compose.fullstack.yml`
+- `deploy/nginx/default.conf`
 
-## 2. Prepare environment
-
-Copy the example env file and set real secrets:
+## 1. Prepare environment
 
 ```bash
 cp .env.example .env
@@ -14,42 +17,51 @@ cp .env.example .env
 
 Required changes in `.env`:
 
-- set a strong `POSTGRES_PASSWORD`
-- set a long Base64 `JWT_SECRET`
-- set `APP_CORS_ALLOWED_ORIGINS` to your frontend domain
-- if you have a domain, set `APP_DOMAIN`
+- set strong `POSTGRES_PASSWORD` and `SPRING_DATASOURCE_PASSWORD`
+- set a real Base64 `JWT_SECRET`
+- set `APP_CORS_ALLOWED_ORIGINS` to your frontend domain(s)
 
-Generate a JWT secret:
+Generate secret:
 
 ```bash
 openssl rand -base64 64
 ```
 
-## 3. Start services
+## 2. Production (backend + postgres + nginx)
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f deploy/compose/docker-compose.prod.yml up -d --build
+docker compose -f deploy/compose/docker-compose.prod.yml ps
+docker compose -f deploy/compose/docker-compose.prod.yml logs -f app
 ```
 
-## 4. Check status
+Public entrypoint: `http://<server-ip>:80`.
+Backend is not exposed directly to host, only through nginx.
+
+## 3. Local backend development
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f app
+docker compose -f deploy/compose/docker-compose.local.yml up -d --build
 ```
 
-The API will be available on port `80` through nginx.
+- backend: `http://localhost:8080`
+- postgres: `localhost:5432`
 
-## 5. Update release
+## 4. Optional fullstack compose (two sibling repos)
+
+This mode assumes both repositories are side by side:
+
+- `/opt/ort-crm`
+- `/opt/ort-crm-frontend`
+
+Run:
 
 ```bash
-git pull
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f deploy/compose/docker-compose.fullstack.yml up -d --build
 ```
 
-## Notes
+Ports:
 
-- Spring Boot runs with profile `prod`
-- PostgreSQL data is stored in Docker volume `postgres-data`
-- The application is bound to `127.0.0.1:${SERVER_PORT}` and exposed publicly only through nginx
-- For HTTPS, place the server behind a real domain and add Certbot or another TLS terminator
+- frontend: `8086`
+- backend: `${BACKEND_HOST_PORT}` (default `8087`)
+- postgres: `5433`
